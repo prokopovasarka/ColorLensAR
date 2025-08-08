@@ -9,6 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app requires access to the camera to record videos and take photos."
+      },
       "bundleIdentifier": "com.colorlensar",
       "supportsTablet": true
     },
