@@ -3,32 +3,37 @@ import { StyleSheet } from "react-native";
 import {
   ViroARScene,
   ViroText,
-  ViroImage,
-  ViroTrackingStateConstants,
   ViroARSceneNavigator,
+  ViroTrackingStateConstants,
   ViroTrackingReason,
 } from "@reactvision/react-viro";
 
 const SceneAR = () => {
-  const [text, setText] = useState("Hello World!");
+  const [text, setText] = useState("Initializing...");
+  const [textPosition, setTextPosition] = useState<[number, number, number]>([0, 0, -1]);
 
-  function onInitialized(state: any, reason: ViroTrackingReason) {
+  const onInitialized = (state: number, reason: ViroTrackingReason) => {
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      setText("AR Ready!");
+      setText("Tap anywhere");
     } else if (state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE) {
-      setText("AR Unavailable");
+      setText("Tracking Unavailable");
     } else {
-      setText("Initializing AR...");
+      setText("Initializing...");
     }
-  }
+  };
+
+  const handleTouch = (source: any, position: [number, number, number]) => {
+    setText("Tapped!");
+    setTextPosition([position[0], position[1] + 0.05, position[2]]);
+  };
 
   return (
-    <ViroARScene onTrackingUpdated={onInitialized}>
+    <ViroARScene onTrackingUpdated={onInitialized} onTouch={handleTouch}>
       <ViroText
         text={text}
-        scale={[0.5, 0.5, 0.5]}
-        position={[0, 0, -1]}
-        style={styles.helloWorldTextStyle}
+        scale={[0.2, 0.2, 0.2]}
+        position={textPosition}
+        style={styles.textStyle}
       />
     </ViroARScene>
   );
@@ -37,18 +42,16 @@ const SceneAR = () => {
 export default function CameraScreen() {
   return (
     <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: SceneAR,
-      }}
-      style={styles.f1}
+      autofocus
+      initialScene={{ scene: SceneAR }}
+      style={styles.fullScreen}
     />
   );
-};
+}
 
-var styles = StyleSheet.create({
-  f1: { flex: 1 },
-  helloWorldTextStyle: {
+const styles = StyleSheet.create({
+  fullScreen: { flex: 1 },
+  textStyle: {
     fontFamily: "Arial",
     fontSize: 30,
     color: "#ffffff",

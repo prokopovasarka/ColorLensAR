@@ -37,7 +37,7 @@ function RootStack() {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={{ title: 'Overview' }}
+        options={{ title: 'Home' }}
       />
       <Stack.Screen name="Camera" component={CameraScreen} />
     </Stack.Navigator>
