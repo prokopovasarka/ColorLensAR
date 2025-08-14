@@ -6,6 +6,7 @@ import {
   ViroARSceneNavigator,
   ViroTrackingStateConstants,
   ViroTrackingReason,
+  ViroARPlaneSelector,
 } from "@reactvision/react-viro";
 
 const SceneAR = () => {
@@ -22,19 +23,20 @@ const SceneAR = () => {
     }
   };
 
-  const handleTouch = (source: any, position: [number, number, number]) => {
-    setText("Tapped!");
-    setTextPosition([position[0], position[1] + 0.05, position[2]]);
-  };
-
   return (
-    <ViroARScene onTrackingUpdated={onInitialized} onTouch={handleTouch}>
-      <ViroText
-        text={text}
-        scale={[0.2, 0.2, 0.2]}
-        position={textPosition}
-        style={styles.textStyle}
-      />
+    <ViroARScene onTrackingUpdated={onInitialized}>
+    <ViroARPlaneSelector/>
+    
+    <ViroText
+      text={text}
+      scale={[0.2, 0.2, 0.2]}
+      position={textPosition}
+      style={styles.textStyle}
+      onClick={() => {
+        setText("Tapped on Text!");
+    }}
+    />
+
     </ViroARScene>
   );
 };
