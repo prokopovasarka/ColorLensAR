@@ -17,17 +17,19 @@ import {
 
 import { captureRef } from "react-native-view-shot";
 import PixelColor from "react-native-pixel-color";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
+  const [placedText, setPlacedText] = useState<string>(""); 
   const [trackingOK, setTrackingOK] = useState(false);
 
   const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => {});
   const registerPlaceAtPoint = props.sceneNavigator?.viroAppProps?.registerPlaceAtPoint ?? (() => {});
 
   useEffect(() => {
-    registerPlaceAtPoint(async (x: number, y: number) => {
+    registerPlaceAtPoint(async (x: number, y: number, color: string) => {
       if (!trackingOK || !arRef.current) {
         reportStatus("Not ready: no tracking");
         return false;
@@ -42,6 +44,7 @@ const SceneAR: React.FC<any> = (props) => {
 
         if (hit?.transform?.position) {
           setPlacedPos(hit.transform.position as [number, number, number]);
+          setPlacedText(color || "");
           reportStatus("Placed");
           return true;
         }
@@ -71,7 +74,7 @@ const SceneAR: React.FC<any> = (props) => {
       <ViroARPlaneSelector />
       {placedPos && (
         <ViroText
-          text="Hello"
+          text={placedText}
           position={placedPos}
           scale={[0.2, 0.2, 0.2]}
           style={styles.arText}
@@ -105,7 +108,7 @@ export default function CameraScreen() {
 
       const ok = await placeAtPointRef.current?.(x, y, color);
       if (!ok) setStatus((s) => (s.startsWith("Placed") ? s : "No surface at tap"));
-      else setStatus(`Color: ${color}`);
+      else setStatus(`Placed`);
     } catch (err) {
       console.warn("Pixel read error:", err);
       setStatus("Pixel read failed");
