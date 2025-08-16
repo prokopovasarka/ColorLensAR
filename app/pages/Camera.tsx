@@ -13,20 +13,30 @@ import {
   ViroARSceneNavigator,
   ViroTrackingStateConstants,
   ViroARPlaneSelector,
+  ViroSphere,
+  ViroMaterials
 } from "@reactvision/react-viro";
 
 import { captureRef } from "react-native-view-shot";
 import PixelColor from "react-native-pixel-color";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
+
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
+  const [materialName, setMaterialName] = useState("sphereColor");
   const [placedText, setPlacedText] = useState<string>(""); 
   const [trackingOK, setTrackingOK] = useState(false);
 
   const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => {});
   const registerPlaceAtPoint = props.sceneNavigator?.viroAppProps?.registerPlaceAtPoint ?? (() => {});
+
+  ViroMaterials.createMaterials({
+  sphereColor: {
+    diffuseColor: "#ffffff", 
+  },
+  });
 
   useEffect(() => {
     registerPlaceAtPoint(async (x: number, y: number, color: string) => {
@@ -57,6 +67,16 @@ const SceneAR: React.FC<any> = (props) => {
     });
   }, [trackingOK, registerPlaceAtPoint, reportStatus]);
 
+  useEffect(() => {
+    if (!placedText) return;
+
+    const newName = `sphere_${placedText.replace("#", "")}`;
+    ViroMaterials.createMaterials({
+      [newName]: { diffuseColor: placedText }
+    });
+    setMaterialName(newName);
+  }, [placedText]);
+
   const onTrackingUpdated = (state: number) => {
     const ok = state === ViroTrackingStateConstants.TRACKING_NORMAL;
     setTrackingOK(ok);
@@ -71,14 +91,22 @@ const SceneAR: React.FC<any> = (props) => {
 
   return (
     <ViroARScene ref={arRef} onTrackingUpdated={onTrackingUpdated}>
-      <ViroARPlaneSelector />
       {placedPos && (
-        <ViroText
-          text={placedText}
-          position={placedPos}
-          scale={[0.2, 0.2, 0.2]}
-          style={styles.arText}
-        />
+        <>
+      <ViroText
+        text={placedText}
+        position={[placedPos[0], placedPos[1] + 0.05, placedPos[2]]} 
+        scale={[0.1, 0.1, 0.1]}
+        style={styles.arText}
+      />
+
+      <ViroSphere
+        key={placedText}
+        position={placedPos}
+        radius={0.03}          
+        materials={[materialName]}
+      />
+      </>
       )}
     </ViroARScene>
   );
