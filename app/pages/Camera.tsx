@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable, PixelRatio } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  PixelRatio,
+  findNodeHandle,
+} from "react-native";
 import {
   ViroARScene,
   ViroText,
@@ -7,6 +14,9 @@ import {
   ViroTrackingStateConstants,
   ViroARPlaneSelector,
 } from "@reactvision/react-viro";
+
+import { captureRef } from "react-native-view-shot";
+import PixelColor from "react-native-pixel-color";
 
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
@@ -18,7 +28,10 @@ const SceneAR: React.FC<any> = (props) => {
 
   useEffect(() => {
     registerPlaceAtPoint(async (x: number, y: number) => {
-      if (!trackingOK || !arRef.current) { reportStatus("Not ready: no tracking"); return false; }
+      if (!trackingOK || !arRef.current) {
+        reportStatus("Not ready: no tracking");
+        return false;
+      }
       try {
         const results = await arRef.current.performARHitTestWithPoint(x, y);
         const hit =
@@ -45,10 +58,11 @@ const SceneAR: React.FC<any> = (props) => {
     const ok = state === ViroTrackingStateConstants.TRACKING_NORMAL;
     setTrackingOK(ok);
     reportStatus(
-      ok ? "Tap to place"
-         : state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE
-         ? "Tracking unavailable"
-         : "Initializing…"
+      ok
+        ? "Tap to place"
+        : state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE
+        ? "Tracking unavailable"
+        : "Initializing…"
     );
   };
 
@@ -69,19 +83,40 @@ const SceneAR: React.FC<any> = (props) => {
 
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
-  const placeAtPointRef = useRef<null | ((x: number, y: number) => Promise<boolean>)>(null);
+  const placeAtPointRef = useRef<
+    null | ((x: number, y: number, color?: string) => Promise<boolean>)
+  >(null);
+  const viewRef = useRef<View>(null);
 
   const handleTap = async (e: any) => {
     const px = PixelRatio.get();
-    const x = Math.round(e.nativeEvent.locationX * px); 
+    const x = Math.round(e.nativeEvent.locationX * px);
     const y = Math.round(e.nativeEvent.locationY * px);
-    const ok = await placeAtPointRef.current?.(x, y);
-    if (!ok) setStatus((s) => (s.startsWith("Placed") ? s : "No surface at tap"));
+
+    try {
+      const tag = findNodeHandle(viewRef.current);
+      if (!tag) throw new Error("View ref not found");
+
+      const uri = await captureRef(tag, { format: "png", quality: 1 });
+
+      const color = await PixelColor.getHex(uri, { x, y });
+
+      console.log("Pixel color:", color);
+
+      const ok = await placeAtPointRef.current?.(x, y, color);
+      if (!ok) setStatus((s) => (s.startsWith("Placed") ? s : "No surface at tap"));
+      else setStatus(`Color: ${color}`);
+    } catch (err) {
+      console.warn("Pixel read error:", err);
+      setStatus("Pixel read failed");
+    }
   };
 
   return (
-    <View style={styles.fullScreen}>
-      <View style={styles.statusBar}><Text style={styles.statusText}>{status}</Text></View>
+    <View style={styles.fullScreen} ref={viewRef} collapsable={false}>
+      <View style={styles.statusBar}>
+        <Text style={styles.statusText}>{status}</Text>
+      </View>
 
       <ViroARSceneNavigator
         style={styles.flex}
@@ -89,7 +124,9 @@ export default function CameraScreen() {
         initialScene={{ scene: SceneAR as any }}
         viroAppProps={{
           reportStatus: (msg: string) => setStatus(msg),
-          registerPlaceAtPoint: (fn: (x: number, y: number) => Promise<boolean>) => {
+          registerPlaceAtPoint: (
+            fn: (x: number, y: number, color?: string) => Promise<boolean>
+          ) => {
             placeAtPointRef.current = fn;
           },
         }}
@@ -112,9 +149,16 @@ const styles = StyleSheet.create({
   },
   statusBar: {
     position: "absolute",
-    top: 0, left: 0, right: 0,
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 10,
     paddingVertical: 10,
   },
-  statusText: { color: "#fff", textAlign: "center", fontSize: 16, fontWeight: "600" },
+  statusText: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
