@@ -32,6 +32,13 @@ const SceneAR: React.FC<any> = (props) => {
   const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => {});
   const registerPlaceAtPoint = props.sceneNavigator?.viroAppProps?.registerPlaceAtPoint ?? (() => {});
 
+  const distanceToCamera = placedPos
+  ? Math.sqrt(placedPos[0]**2 + placedPos[1]**2 + placedPos[2]**2)
+  : 1;
+
+  const textScale = 0.1 * distanceToCamera;
+  const sphereRadius = 0.03 * distanceToCamera;
+
   ViroMaterials.createMaterials({
   sphereColor: {
     diffuseColor: "#ffffff", 
@@ -96,14 +103,16 @@ const SceneAR: React.FC<any> = (props) => {
       <ViroText
         text={placedText}
         position={[placedPos[0], placedPos[1] + 0.05, placedPos[2]]} 
-        scale={[0.1, 0.1, 0.1]}
+        scale={[textScale, textScale, textScale]}
         style={styles.arText}
+        outerStroke={{type:"Outline", width:8, color:'#000000'}}          
+        transformBehaviors={["billboard"]}
       />
 
       <ViroSphere
         key={placedText}
         position={placedPos}
-        radius={0.03}          
+        radius={sphereRadius}      
         materials={[materialName]}
       />
       </>
