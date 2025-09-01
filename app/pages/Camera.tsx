@@ -6,6 +6,7 @@ import {
   Pressable,
   PixelRatio,
   findNodeHandle,
+  Alert,
 } from "react-native";
 import {
   ViroARScene,
@@ -14,13 +15,14 @@ import {
   ViroTrackingStateConstants,
   ViroARPlaneSelector,
   ViroSphere,
+  ViroQuad,
   ViroMaterials
 } from "@reactvision/react-viro";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { captureRef } from "react-native-view-shot";
 import PixelColor from "react-native-pixel-color";
-import { Colors } from "react-native/Libraries/NewAppScreen";
-
 
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
@@ -43,6 +45,9 @@ const SceneAR: React.FC<any> = (props) => {
   sphereColor: {
     diffuseColor: "#ffffff", 
   },
+  backdrop: {
+    diffuseColor: "#000000",
+  },
   });
 
   useEffect(() => {
@@ -62,6 +67,8 @@ const SceneAR: React.FC<any> = (props) => {
         if (hit?.transform?.position) {
           setPlacedPos(hit.transform.position as [number, number, number]);
           setPlacedText(color || "");
+          props.sceneNavigator?.viroAppProps?.setSelectedColor?.(color || "");
+
           reportStatus("Placed");
           return true;
         }
@@ -108,26 +115,31 @@ const SceneAR: React.FC<any> = (props) => {
         outerStroke={{type:"Outline", width:8, color:'#000000'}}          
         transformBehaviors={["billboard"]}
       />
-
+    
       <ViroSphere
         key={placedText}
         position={placedPos}
         radius={sphereRadius}      
         materials={[materialName]}
+        opacity={1}
       />
       </>
       )}
+
     </ViroARScene>
   );
 };
 
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
+  const [selectedColor, setSelectedColor] = useState<string>("");
+
   const placeAtPointRef = useRef<
     null | ((x: number, y: number, color?: string) => Promise<boolean>)
   >(null);
   const viewRef = useRef<View>(null);
 
+// handling tap on screen
   const handleTap = async (e: any) => {
     const px = PixelRatio.get();
     const x = Math.round(e.nativeEvent.locationX * px);
@@ -152,6 +164,28 @@ export default function CameraScreen() {
     }
   };
 
+// saving colors
+  const saveColor = async (color: string) => {
+    try {
+      const saved = await AsyncStorage.getItem("savedColors");
+      const colors = saved ? JSON.parse(saved) : [];
+
+      colors.push(color); 
+      await AsyncStorage.setItem("savedColors", JSON.stringify(colors));
+
+      Alert.alert(
+      "Saved!",
+      `Saved!`,
+        [
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true }
+      );
+    } catch (e) {
+      console.warn("Error saving color:", e);
+    }
+  };
+
   return (
     <View style={styles.fullScreen} ref={viewRef} collapsable={false}>
       <View style={styles.statusBar}>
@@ -169,10 +203,25 @@ export default function CameraScreen() {
           ) => {
             placeAtPointRef.current = fn;
           },
+          setSelectedColor: (color: string) => setSelectedColor(color), 
         }}
       />
 
       <Pressable onPress={handleTap} style={StyleSheet.absoluteFill} />
+        
+      {selectedColor ? (
+        <Pressable
+          style={{
+          position: "absolute",
+          bottom: 30,
+          right: `50 %`,
+          alignItems: "center",
+          justifyContent: "center",
+    }}
+    onPress={() => saveColor(selectedColor)}>
+      <Text style={{ color: "#fff", fontSize: 24 }}>💾</Text>
+    </Pressable>
+      ) : null}
     </View>
   );
 }

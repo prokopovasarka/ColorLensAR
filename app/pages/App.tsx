@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import {
   createStaticNavigation,
   useNavigation,
@@ -9,21 +9,31 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Button } from '@react-navigation/elements';
 
 import CameraScreen from './Camera';
+import Library from './Library';
+import ColorDetail from './ColorDetail';
+import { globalStyles } from '../styles/globalStyles';
 
 type RootStackParamList = {
   Home: undefined;
   Camera: undefined;
+  Library: undefined;
+  ColorDetail: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function HomeScreen({ navigation }: any) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Menu</Text>
-      <Button onPress={() => navigation.navigate('Camera')}>
-        Camera
-      </Button>
+    <View style={globalStyles.container}>
+      <Text style={globalStyles.title}>"The noblest pleasure is the joy of understanding colors."</Text>
+      <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Camera')} >
+        <Text style={globalStyles.buttonText}>CAMERA</Text>
+        
+      </TouchableOpacity>
+
+      <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Library')} >
+        <Text style={globalStyles.buttonText}>LIBRARY</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -32,7 +42,24 @@ function RootStack() {
   return (
     <Stack.Navigator initialRouteName="Home" 
     screenOptions={{
-    headerStyle: { backgroundColor: 'tomato' },
+        headerTintColor: '#fff',
+        headerTitleStyle: globalStyles.headerTitle,
+        headerBackground: () => (
+          <View style={{ flex: 1, backgroundColor: '#1e1e2d' }}>
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 180,                 
+                width: 500,                
+                height: '300%',
+                backgroundColor: '#ffffff',
+                opacity: 0.05,
+                transform: [{ rotate: '60deg' }], 
+              }}
+            />
+          </View>
+        ),
     }}>
       <Stack.Screen
         name="Home"
@@ -40,25 +67,11 @@ function RootStack() {
         options={{ title: 'Home' }}
       />
       <Stack.Screen name="Camera" component={CameraScreen} />
+      <Stack.Screen name="Library" component={Library} />
+      <Stack.Screen name="ColorDetail" component={ColorDetail} />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#f0f4f7',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 40,
-    color: '#333',
-  }
-});
 
 export default function App() {
   return (
