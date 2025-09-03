@@ -18,10 +18,10 @@ import {
   ViroQuad,
   ViroMaterials
 } from "@reactvision/react-viro";
-import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { captureRef } from "react-native-view-shot";
+import { useNavigation } from "@react-navigation/native";
 import PixelColor from "react-native-pixel-color";
 
 const SceneAR: React.FC<any> = (props) => {
@@ -133,6 +133,8 @@ const SceneAR: React.FC<any> = (props) => {
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
   const [selectedColor, setSelectedColor] = useState<string>("");
+  const navigation = useNavigation();
+  const controlsDisabled = !selectedColor;
 
   const placeAtPointRef = useRef<
     null | ((x: number, y: number, color?: string) => Promise<boolean>)
@@ -164,7 +166,7 @@ export default function CameraScreen() {
     }
   };
 
-// saving colors
+  // saving colors
   const saveColor = async (color: string) => {
     try {
       const saved = await AsyncStorage.getItem("savedColors");
@@ -209,19 +211,15 @@ export default function CameraScreen() {
 
       <Pressable onPress={handleTap} style={StyleSheet.absoluteFill} />
         
-      {selectedColor ? (
-        <Pressable
-          style={{
-          position: "absolute",
-          bottom: 30,
-          right: `50 %`,
-          alignItems: "center",
-          justifyContent: "center",
-    }}
-    onPress={() => saveColor(selectedColor)}>
-      <Text style={{ color: "#fff", fontSize: 24 }}>💾</Text>
-    </Pressable>
-      ) : null}
+      <View style={styles.controlsWrapper} pointerEvents={controlsDisabled ? "none" : "auto"}>
+        <Pressable style={[styles.controlButton, controlsDisabled && { opacity: 0.5 }]} onPress={() => saveColor(selectedColor)}>
+          <Text style={styles.controlEmoji}>💾</Text>
+        </Pressable>
+
+        <Pressable style={[styles.controlButton, controlsDisabled && { opacity: 0.5 }]} onPress={() => (navigation as any).navigate("ColorDetail", { color: selectedColor })}>
+          <Text style={styles.controlEmoji}>🎨</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -249,5 +247,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
+  },
+  controlsWrapper: {
+    position: "absolute",
+    bottom: 30,
+    flexDirection: "row",
+    alignSelf: "center",
+  },
+  controlButton: {
+    marginHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  controlEmoji: {
+    fontSize: 24,
+    color: "#fff",
   },
 });

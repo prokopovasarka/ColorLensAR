@@ -9,7 +9,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Button } from '@react-navigation/elements';
 
 import CameraScreen from './Camera';
-import Library from './Library';
+import LibraryScreen from './Library';
+import Help from './Help';
 import ColorDetail from './ColorDetail';
 import { globalStyles } from '../styles/globalStyles';
 
@@ -17,6 +18,7 @@ type RootStackParamList = {
   Home: undefined;
   Camera: undefined;
   Library: undefined;
+  Help: undefined;
   ColorDetail: undefined;
 };
 
@@ -33,6 +35,10 @@ function HomeScreen({ navigation }: any) {
 
       <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Library')} >
         <Text style={globalStyles.buttonText}>LIBRARY</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Help')} >
+        <Text style={globalStyles.buttonText}>    HELP    </Text>
       </TouchableOpacity>
     </View>
   );
@@ -67,7 +73,8 @@ function RootStack() {
         options={{ title: 'Home' }}
       />
       <Stack.Screen name="Camera" component={CameraScreen} />
-      <Stack.Screen name="Library" component={Library} />
+      <Stack.Screen name="Library" component={LibraryScreen} />
+      <Stack.Screen name="Help" component={Help} />
       <Stack.Screen name="ColorDetail" component={ColorDetail} />
     </Stack.Navigator>
   );
