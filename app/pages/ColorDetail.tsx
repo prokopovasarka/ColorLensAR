@@ -60,15 +60,58 @@ export default function ColorDetail({ route }: any) {
 
   const generateMonochrome = (h: number, s: number, l: number) => {
     const step = 10; 
-    const palette = [];
-    for (let i = -3; i <= 3; i++) {
-      let newL = Math.min(100, Math.max(0, l + i*step));
-      palette.push(`hsl(${h}, ${s}%, ${newL}%)`);
+    const count = 3; 
+    const minL = l - count * step;
+    const maxL = l + count * step;
+
+    let shift = 0;
+
+    if (minL < 20) {
+        shift = 20-minL;
+    }
+
+    if (maxL > 80) {
+        shift = 80 - maxL;
+    }
+
+    const palette: string[] = [];
+    for (let i = -count; i <= count; i++) {
+        if (i === 0) continue;
+        let newL = l + i * step + shift;
+        newL = Math.min(100, Math.max(0, newL));
+        palette.push(`hsl(${h}, ${s}%, ${newL}%)`);
     }
     return palette;
   };
 
-  const palette = generateMonochrome(hslObj.h, hslObj.s, hslObj.l);
+  const generateComplementary = (h: number, s: number, l: number) => {
+    const step = 10;
+    let compHue = (h + 180); 
+    if( compHue >= 360 ) compHue % 360; 
+    const palette = [];
+    for (let i = -3; i <= 3; i++) {
+        if( i == 0 ) continue;
+        let newCompHue = compHue + i * step;
+        palette.push(`hsl(${newCompHue}, ${s}%, ${l}%)`);
+    }
+    return palette;
+  };
+
+  const generateAnalogous = (h: number, s: number, l: number) => {
+    const step = 20;
+    const palette = [];
+    let newHue = h;
+    for (let i = -3; i <= 3; i++) {
+        if( i == 0 ) continue;
+        newHue = h + i * step;
+        palette.push(`hsl(${newHue}, ${s}%, ${l}%)`);
+    }
+    return palette;
+  };
+
+  const monoPalette = generateMonochrome(hslObj.h, hslObj.s, hslObj.l);
+  const complementaryPalette = generateComplementary(hslObj.h, hslObj.s, hslObj.l);
+  const analogousPalette = generateAnalogous(hslObj.h, hslObj.s, hslObj.l);
 
   return (
     <View style={[styles.container, { backgroundColor: color }]}>
@@ -79,9 +122,22 @@ export default function ColorDetail({ route }: any) {
 
       <Text style={styles.paletteTitle}>Monochromatic palette</Text>
 
-      <View style={styles.palette}>
-        {palette.map((c, i) => (
+      <View style={styles.palette}> {monoPalette.map((c, i) => (
           <View key={i} style={[styles.colorBox, { backgroundColor: c }]} />
+        ))}
+      </View>
+
+      <Text style={styles.paletteTitle}>Complementary palette</Text>
+
+      <View style={styles.palette}> {complementaryPalette.map((c, i) => (
+        <View key={i} style={[styles.colorBox, { backgroundColor: c }]} />
+        ))}
+      </View>
+
+      <Text style={styles.paletteTitle}>Analogous palette</Text>
+
+      <View style={styles.palette}> {analogousPalette.map((c, i) => (
+        <View key={i} style={[styles.colorBox, { backgroundColor: c }]} />
         ))}
       </View>
     </View>
