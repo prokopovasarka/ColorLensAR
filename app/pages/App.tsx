@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import {
-  createStaticNavigation,
-  useNavigation,
   NavigationContainer,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Button } from '@react-navigation/elements';
 
 import CameraScreen from './Camera';
 import LibraryScreen from './Library';
