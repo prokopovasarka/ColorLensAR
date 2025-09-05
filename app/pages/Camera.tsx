@@ -13,9 +13,7 @@ import {
   ViroText,
   ViroARSceneNavigator,
   ViroTrackingStateConstants,
-  ViroARPlaneSelector,
   ViroSphere,
-  ViroQuad,
   ViroFlexView,
   ViroMaterials
 } from "@reactvision/react-viro";
