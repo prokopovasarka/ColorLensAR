@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# Expo Starter Kit with React Viro (TypeScript)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Viro AR/VR starter kit for Expo with TypeScript.
 
-## Get started
+## Prerequisites
 
-1. Install dependencies
+- React Viro requires native code and **cannot run in Expo Go**
+- You must use development builds or prebuild to run this project
 
-   ```bash
-   npm install
-   ```
+## Installation
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```shell
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Setup
 
-## Learn more
+Generate native directories (required for ViroReact):
 
-To learn more about developing your project with Expo, look at the following resources:
+```shell
+npx expo prebuild --clean
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Check for any project issues:
 
-## Join the community
+```shell
+npx expo-doctor
+```
 
-Join our community of developers creating universal apps.
+## Running
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**Development builds** (recommended):
+
+```shell
+npx expo run:ios
+npx expo run:android
+```
+
+**Development server** (after building):
+
+```shell
+npx expo start --dev-client
+```
+
+## Troubleshooting
+
+### iOS Build Error: "no such module 'ExpoModulesCore'"
+
+If building through `npx expo run:ios` presents the following error "no such module 'ExpoModulesCore'", follow these steps:
+
+1. Start your development server:
+   ```shell
+   npx expo start --dev-client
+   ```
+
+2. Open the Xcode workspace for the project within the ios folder:
+   ```shell
+   open ios/expostarterkittypescript.xcworkspace
+   ```
+
+3. Build and run the application directly within Xcode
+
+This ensures the Metro bundler is running and properly connected to your iOS build.
+
+## Expo Docs
+
+[Expo Docs](https://docs.expo.dev/)
+
+## Need help?
+
+<a href="https://discord.gg/H3ksm5NhzT">
+   <img src="https://discordapp.com/api/guilds/774471080713781259/widget.png?style=banner2" alt="Discord Banner 2"/>
+</a>
