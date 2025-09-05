@@ -16,6 +16,13 @@ export const globalStyles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
+    marginBottom: 50,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: `700`,
+  },
+  quote: {
+    fontSize: 20,
     fontStyle: `italic`,
     marginBottom: 50,
     color: '#fff',

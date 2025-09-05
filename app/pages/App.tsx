@@ -27,7 +27,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function HomeScreen({ navigation }: any) {
   return (
     <View style={globalStyles.container}>
-      <Text style={globalStyles.title}>"The noblest pleasure is the joy of understanding colors."</Text>
+      <Text style={globalStyles.quote}>"The noblest pleasure is the joy of understanding colors."</Text>
       <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Camera')} >
         <Text style={globalStyles.buttonText}>CAMERA</Text>
         
@@ -67,11 +67,7 @@ function RootStack() {
           </View>
         ),
     }}>
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: 'Home' }}
-      />
+      <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} /> 
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Library" component={LibraryScreen} />
       <Stack.Screen name="Help" component={Help} />

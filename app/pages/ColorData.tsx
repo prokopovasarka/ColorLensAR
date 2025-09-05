@@ -124,10 +124,6 @@ export default function useColorData(color: string) {
     return palette;
   };
 
-  const monoPalette = generateMonochrome(hslObj.h, hslObj.s, hslObj.l);
-  const complementaryPalette = generateComplementary(hslObj.h, hslObj.s, hslObj.l);
-  const analogousPalette = generateAnalogous(hslObj.h, hslObj.s, hslObj.l);
-
     return {
       color,
       textColor,

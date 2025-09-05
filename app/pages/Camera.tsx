@@ -295,6 +295,6 @@ const styles = StyleSheet.create({
 
 ViroMaterials.createMaterials({
   labelBackground: {
-    diffuseTexture: require('../images/infoBox.png'),
+    diffuseTexture: require('../assets/infoBox.png'),
   },
 });
