@@ -16,6 +16,7 @@ import {
   ViroARPlaneSelector,
   ViroSphere,
   ViroQuad,
+  ViroFlexView,
   ViroMaterials
 } from "@reactvision/react-viro";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,12 +24,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { captureRef } from "react-native-view-shot";
 import { useNavigation } from "@react-navigation/native";
 import PixelColor from "react-native-pixel-color";
+import useColorData from "./ColorData";
 
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
   const [materialName, setMaterialName] = useState("sphereColor");
-  const [placedText, setPlacedText] = useState<string>(""); 
+  const [placedName, setPlacedName] = useState<string>(""); 
+  const [placedHEX, setPlacedHEX] = useState<string>("");
+  const [placedHSL, setPlacedHSL] = useState<string>("");
   const [trackingOK, setTrackingOK] = useState(false);
 
   const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => {});
@@ -40,6 +44,8 @@ const SceneAR: React.FC<any> = (props) => {
 
   const textScale = 0.1 * distanceToCamera;
   const sphereRadius = 0.03 * distanceToCamera;
+
+  const colorData = useColorData(placedHEX || "#ffffff");
 
   ViroMaterials.createMaterials({
   sphereColor: {
@@ -66,7 +72,10 @@ const SceneAR: React.FC<any> = (props) => {
 
         if (hit?.transform?.position) {
           setPlacedPos(hit.transform.position as [number, number, number]);
-          setPlacedText(color || "");
+          setPlacedHEX(color || "");
+          setPlacedName(colorData.colorName);
+          setPlacedHSL(colorData.hslString);
+
           props.sceneNavigator?.viroAppProps?.setSelectedColor?.(color || "");
 
           reportStatus("Placed");
@@ -82,14 +91,18 @@ const SceneAR: React.FC<any> = (props) => {
   }, [trackingOK, registerPlaceAtPoint, reportStatus]);
 
   useEffect(() => {
-    if (!placedText) return;
+    if (!placedHEX) return;
 
-    const newName = `sphere_${placedText.replace("#", "")}`;
+    const newName = `sphere_${placedHEX.replace("#", "")}`;
     ViroMaterials.createMaterials({
-      [newName]: { diffuseColor: placedText }
+      [newName]: { diffuseColor: placedHEX }
     });
-    setMaterialName(newName);
-  }, [placedText]);
+    setTimeout(() => {
+      setMaterialName(newName);
+      setPlacedName(colorData.colorName);
+      setPlacedHSL(colorData.hslString);
+    }, 0);
+  }, [placedHEX]);
 
   const onTrackingUpdated = (state: number) => {
     const ok = state === ViroTrackingStateConstants.TRACKING_NORMAL;
@@ -107,17 +120,32 @@ const SceneAR: React.FC<any> = (props) => {
     <ViroARScene ref={arRef} onTrackingUpdated={onTrackingUpdated}>
       {placedPos && (
         <>
-      <ViroText
-        text={placedText}
-        position={[placedPos[0], placedPos[1] + 0.05, placedPos[2]]} 
-        scale={[textScale, textScale, textScale]}
-        style={styles.arText}
-        outerStroke={{type:"Outline", width:8, color:'#000000'}}          
+      <ViroFlexView
+        position={[placedPos[0], placedPos[1]+0.3, placedPos[2]]}
+        width={0.3} 
+        height={0.2}
+        materials={["labelBackground"]}
         transformBehaviors={["billboard"]}
-      />
+      >
+        <ViroText
+          text={`${placedName}`}
+          style={{ fontSize: 30, color: "#fff", textAlign: "center", textAlignVertical: "center" }}
+          scale={[0.07, 0.07, 0.07]}
+          width={3} 
+          position={[0, 0.03, 0]} 
+        />
+
+        <ViroText
+          text={`HEX: ${placedHEX}`}
+          style={{ fontSize: 30, color: "#fff", textAlign: "center", textAlignVertical: "center" }}
+          scale={[0.07, 0.07, 0.07]}
+          width={3} 
+          position={[0, -0.03, 0]} 
+        />
+      </ViroFlexView>
     
       <ViroSphere
-        key={placedText}
+        key={placedHEX}
         position={placedPos}
         radius={sphereRadius}      
         materials={[materialName]}
@@ -262,5 +290,11 @@ const styles = StyleSheet.create({
   controlEmoji: {
     fontSize: 24,
     color: "#fff",
+  },
+});
+
+ViroMaterials.createMaterials({
+  labelBackground: {
+    diffuseTexture: require('../images/infoBox.png'),
   },
 });

@@ -38,7 +38,7 @@ function HomeScreen({ navigation }: any) {
       </TouchableOpacity>
 
       <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('Help')} >
-        <Text style={globalStyles.buttonText}>    HELP    </Text>
+        <Text style={globalStyles.buttonText}>HELP</Text>
       </TouchableOpacity>
     </View>
   );

@@ -26,7 +26,7 @@ export const globalStyles = StyleSheet.create({
     margin: 10,
     paddingVertical: 30,
     borderRadius: 20,  
-    paddingHorizontal: width*0.25,
+    width: width*0.8,
     backgroundColor: '#1e1e2ddd',
     alignItems: 'center',
     justifyContent: 'center',

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
 
 import { globalStyles } from '../styles/globalStyles';
 
@@ -57,7 +57,7 @@ export default function LibraryScreen() {
       <Text style={globalStyles.title}>Saved Colors</Text>
 
       {colors.length ? (
-        <View style={styles.grid}>
+        <ScrollView contentContainerStyle={styles.grid}>
           {colors.map((c, i) => {
             const isSelected = selected.has(c);
             return (
@@ -73,7 +73,7 @@ export default function LibraryScreen() {
               />
             );
           })}
-        </View>
+        </ScrollView>
       ) : (
         <Text style={styles.noColor}>No color saved yet</Text>
       )}
