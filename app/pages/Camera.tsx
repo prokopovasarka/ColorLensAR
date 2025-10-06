@@ -28,7 +28,6 @@ import { launchImageLibrary } from "react-native-image-picker";
 
 import styles from "../styles/CameraStyles";
 
-// ================= AR SCENE =================
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
@@ -133,7 +132,6 @@ const SceneAR: React.FC<any> = (props) => {
   );
 };
 
-// ================= CAMERA SCREEN =================
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
   const [selectedColor, setSelectedColor] = useState<string>("");
@@ -143,7 +141,6 @@ export default function CameraScreen() {
   const placeAtPointRef = useRef<any>(null);
   const viewRef = useRef<View>(null);
 
-  // Tap for picking color
   const handleTap = async (e: any) => {
     const px = PixelRatio.get();
     const x = Math.round(e.nativeEvent.locationX * px);
@@ -217,7 +214,6 @@ export default function CameraScreen() {
         <Text style={styles.statusText}>{status}</Text>
       </View>
 
-      {/* AR or captured image */}
       {capturedPhoto ? (
         <Image source={{ uri: capturedPhoto }} style={styles.flex} resizeMode="cover" />
       ) : (
@@ -235,9 +231,7 @@ export default function CameraScreen() {
 
       <Pressable onPress={handleTap} style={StyleSheet.absoluteFill} />
 
-      {/* Buttons */}
       <View style={{ position: "absolute", bottom: 30, width: "100%", alignItems: "center" }}>
-        {/* Top row: save color & palette */}
         <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 10 }}>
           <Pressable
             style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
@@ -246,12 +240,11 @@ export default function CameraScreen() {
           >
             <Text style={styles.controlEmoji}>💾</Text>
           </Pressable>
-          <Pressable style={styles.controlButton} onPress={() => (navigation as any).navigate("ColorDetail", { color: selectedColor })}>
+          <Pressable style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]} onPress={() => (navigation as any).navigate("ColorDetail", { color: selectedColor })} disabled={!selectedColor}>
             <Text style={styles.controlEmoji}>🎨</Text>
           </Pressable>
         </View>
 
-        {/* Bottom row: camera, gallery, save photo */}
         <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
           {capturedPhoto ? (
             <>
