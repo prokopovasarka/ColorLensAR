@@ -28,13 +28,12 @@ import { launchImageLibrary } from "react-native-image-picker";
 
 import styles from "../styles/CameraStyles";
 
-
-// ========== AR SCENE ==========
+// ================= AR SCENE =================
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
   const [materialName, setMaterialName] = useState("sphereColor");
-  const [placedName, setPlacedName] = useState<string>(""); 
+  const [placedName, setPlacedName] = useState<string>("");
   const [placedHEX, setPlacedHEX] = useState<string>("");
   const [placedHSL, setPlacedHSL] = useState<string>("");
   const [trackingOK, setTrackingOK] = useState(false);
@@ -44,7 +43,7 @@ const SceneAR: React.FC<any> = (props) => {
   const colorData = useColorData(placedHEX || "#ffffff");
 
   const distanceToCamera = placedPos
-    ? Math.sqrt(placedPos[0]**2 + placedPos[1]**2 + placedPos[2]**2)
+    ? Math.sqrt(placedPos[0] ** 2 + placedPos[1] ** 2 + placedPos[2] ** 2)
     : 1;
   const sphereRadius = 0.03 * distanceToCamera;
 
@@ -134,19 +133,17 @@ const SceneAR: React.FC<any> = (props) => {
   );
 };
 
-
-// ========== CAMERA SCREEN ==========
+// ================= CAMERA SCREEN =================
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [hasMediaPermission, setHasMediaPermission] = useState(false);
 
   const navigation = useNavigation();
   const placeAtPointRef = useRef<any>(null);
   const viewRef = useRef<View>(null);
 
-  // tap on screen (for color selection)
+  // Tap for picking color
   const handleTap = async (e: any) => {
     const px = PixelRatio.get();
     const x = Math.round(e.nativeEvent.locationX * px);
@@ -163,7 +160,6 @@ export default function CameraScreen() {
     }
   };
 
-  // take photo (preview only)
   const takePhoto = async () => {
     try {
       const tag = findNodeHandle(viewRef.current);
@@ -171,44 +167,38 @@ export default function CameraScreen() {
       const uri = await captureRef(tag, { format: "jpg", quality: 1 });
       setCapturedPhoto(uri);
       setStatus("Photo captured");
-    } catch (err) {
+    } catch {
       Alert.alert("Error", "Failed to capture photo");
     }
   };
 
-  // save captured photo
   const savePhoto = async () => {
-  if (!capturedPhoto) return;
-  try {
-    // TypeScript hlásí chybu, takže použijeme any
-    await (CameraRoll as any).save(capturedPhoto, { type: "photo", album: "ColorFinder" });
-    Alert.alert("Photo saved!", "The photo has been saved to gallery.");
-    setCapturedPhoto(null);
-  } catch (err) {
-    console.log(err);
-    Alert.alert("Error", "Failed to save photo");
-  }
+    if (!capturedPhoto) return;
+    try {
+      await CameraRoll.save(capturedPhoto, { type: "photo", album: "ColorFinder" });
+      Alert.alert("Saved!", "Photo saved to gallery.");
+      setCapturedPhoto(null);
+    } catch {
+      Alert.alert("Error", "Failed to save photo");
+    }
   };
 
-  // choose photo from gallery
   const pickFromGallery = async () => {
     try {
       const result = await launchImageLibrary({ mediaType: "photo" });
       if (result.didCancel || !result.assets?.[0]?.uri) return;
       setCapturedPhoto(result.assets[0].uri);
       setStatus("Photo loaded");
-    } catch (err) {
+    } catch {
       Alert.alert("Error", "Failed to pick image");
     }
   };
 
-  // discard photo
   const discardPhoto = () => {
     setCapturedPhoto(null);
     setStatus("Camera ready");
   };
 
-  // save color to AsyncStorage
   const saveColor = async (color: string) => {
     try {
       const saved = await AsyncStorage.getItem("savedColors");
@@ -216,8 +206,8 @@ export default function CameraScreen() {
       colors.push(color);
       await AsyncStorage.setItem("savedColors", JSON.stringify(colors));
       Alert.alert("Saved!", "Color saved successfully.");
-    } catch (e) {
-      console.warn("Error saving color:", e);
+    } catch {
+      console.warn("Error saving color");
     }
   };
 
@@ -227,7 +217,7 @@ export default function CameraScreen() {
         <Text style={styles.statusText}>{status}</Text>
       </View>
 
-      {/* AR View or captured image */}
+      {/* AR or captured image */}
       {capturedPhoto ? (
         <Image source={{ uri: capturedPhoto }} style={styles.flex} resizeMode="cover" />
       ) : (
@@ -245,46 +235,51 @@ export default function CameraScreen() {
 
       <Pressable onPress={handleTap} style={StyleSheet.absoluteFill} />
 
-      {/* Bottom controls */}
-      <View style={styles.controlsWrapper}>
-        {capturedPhoto ? (
-          <>
-            <Pressable style={styles.controlButton} onPress={discardPhoto}>
-              <Text style={styles.controlEmoji}>❌</Text>
-            </Pressable>
+      {/* Buttons */}
+      <View style={{ position: "absolute", bottom: 30, width: "100%", alignItems: "center" }}>
+        {/* Top row: save color & palette */}
+        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 10 }}>
+          <Pressable
+            style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
+            onPress={() => saveColor(selectedColor)}
+            disabled={!selectedColor}
+          >
+            <Text style={styles.controlEmoji}>💾</Text>
+          </Pressable>
+          <Pressable style={styles.controlButton} onPress={() => (navigation as any).navigate("ColorDetail", { color: selectedColor })}>
+            <Text style={styles.controlEmoji}>🎨</Text>
+          </Pressable>
+        </View>
 
-            <Pressable style={styles.controlButton} onPress={savePhoto}>
-              <Text style={styles.controlEmoji}>💾</Text>
-              <Text style={{ color: "#fff", fontSize: 10 }}>Save photo</Text>
-            </Pressable>
-          </>
-        ) : (
-          <>
-            <Pressable style={styles.controlButton} onPress={pickFromGallery}>
-              <Text style={styles.controlEmoji}>🖼️</Text>
-            </Pressable>
+        {/* Bottom row: camera, gallery, save photo */}
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+          {capturedPhoto ? (
+            <>
+              <Pressable style={styles.controlButton} onPress={discardPhoto}>
+                <Text style={styles.controlEmoji}>❌</Text>
+              </Pressable>
+              <Pressable style={styles.controlButton} onPress={savePhoto}>
+                <Text style={styles.controlEmoji}>💾</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Pressable style={styles.controlButton} onPress={pickFromGallery}>
+                <Text style={styles.controlEmoji}>🖼️</Text>
+              </Pressable>
 
-            <Pressable style={localStyles.cameraButton} onPress={takePhoto}>
-              <View style={localStyles.innerCircle} />
-            </Pressable>
-
-            <Pressable
-              style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
-              onPress={() => saveColor(selectedColor)}
-              disabled={!selectedColor}
-            >
-              <Text style={styles.controlEmoji}>💾</Text>
-              <Text style={{ color: "#fff", fontSize: 10 }}>Save color</Text>
-            </Pressable>
-          </>
-        )}
+              <Pressable style={localStyles.cameraButton} onPress={takePhoto}>
+                <View style={localStyles.innerCircle} />
+              </Pressable>
+            </>
+          )}
+        </View>
       </View>
     </View>
   );
 }
 
 
-// ========== LOCAL CAMERA BUTTON STYLES ==========
 const localStyles = StyleSheet.create({
   cameraButton: {
     width: 70,

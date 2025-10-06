@@ -28,8 +28,10 @@ const styles = StyleSheet.create({
   controlsWrapper: {
     position: "absolute",
     bottom: 30,
-    flexDirection: "row",
-    alignSelf: "center",
+    flexDirection: "row",       
+    justifyContent: "space-around", 
+    width: "100%",               
+    alignItems: "center",
   },
   controlButton: {
     marginHorizontal: 10,
@@ -40,6 +42,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#fff",
   },
+  topControls: {
+  position: "absolute",
+  top: 40,
+  left: 0,
+  right: 0,
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: 20,
+  zIndex: 10,
+  }
 });
 
 export default styles;
