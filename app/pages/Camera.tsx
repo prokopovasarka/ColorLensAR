@@ -52,6 +52,9 @@ const SceneAR: React.FC<any> = (props) => {
   backdrop: {
     diffuseColor: "#000000",
   },
+  labelBackground: {
+    diffuseTexture: require('../assets/infoBox.png'),
+  },
   });
 
   useEffect(() => {
@@ -99,7 +102,7 @@ const SceneAR: React.FC<any> = (props) => {
       setMaterialName(newName);
       setPlacedName(colorData.colorName);
       setPlacedHSL(colorData.hslString);
-    }, 0);
+    }, 50);
   }, [placedHEX]);
 
   const onTrackingUpdated = (state: number) => {
@@ -288,11 +291,5 @@ const styles = StyleSheet.create({
   controlEmoji: {
     fontSize: 24,
     color: "#fff",
-  },
-});
-
-ViroMaterials.createMaterials({
-  labelBackground: {
-    diffuseTexture: require('../assets/infoBox.png'),
   },
 });
