@@ -23,8 +23,9 @@ import { captureRef } from "react-native-view-shot";
 import { useNavigation } from "@react-navigation/native";
 import PixelColor from "react-native-pixel-color";
 import useColorData from "./ColorData";
-import CameraRoll from "@react-native-camera-roll/camera-roll";
+import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 import { launchImageLibrary } from "react-native-image-picker";
+import { PERMISSIONS, RESULTS, request, check } from "react-native-permissions";
 
 import styles from "../styles/CameraStyles";
 
@@ -37,8 +38,8 @@ const SceneAR: React.FC<any> = (props) => {
   const [placedHSL, setPlacedHSL] = useState<string>("");
   const [trackingOK, setTrackingOK] = useState(false);
 
-  const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => {});
-  const registerPlaceAtPoint = props.sceneNavigator?.viroAppProps?.registerPlaceAtPoint ?? (() => {});
+  const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => { });
+  const registerPlaceAtPoint = props.sceneNavigator?.viroAppProps?.registerPlaceAtPoint ?? (() => { });
   const colorData = useColorData(placedHEX || "#ffffff");
 
   const distanceToCamera = placedPos
@@ -136,6 +137,7 @@ export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [uiVisible, setUiVisible] = useState(true);
 
   const navigation = useNavigation();
   const placeAtPointRef = useRef<any>(null);
@@ -159,23 +161,34 @@ export default function CameraScreen() {
 
   const takePhoto = async () => {
     try {
+      setUiVisible(false);
+      await new Promise((r) => setTimeout(r, 100));
+
       const tag = findNodeHandle(viewRef.current);
       if (!tag) throw new Error("View ref not found");
       const uri = await captureRef(tag, { format: "jpg", quality: 1 });
+
       setCapturedPhoto(uri);
       setStatus("Photo captured");
     } catch {
       Alert.alert("Error", "Failed to capture photo");
+    } finally {
+      setUiVisible(true);
     }
   };
 
   const savePhoto = async () => {
     if (!capturedPhoto) return;
     try {
-      await CameraRoll.save(capturedPhoto, { type: "photo", album: "ColorFinder" });
+      await CameraRoll.saveAsset(capturedPhoto, {
+        type: "photo",
+        album: "ColorFinder",
+      });
+
       Alert.alert("Saved!", "Photo saved to gallery.");
       setCapturedPhoto(null);
-    } catch {
+    } catch (e) {
+      console.error(e);
       Alert.alert("Error", "Failed to save photo");
     }
   };
@@ -210,9 +223,11 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.fullScreen} ref={viewRef} collapsable={false}>
-      <View style={styles.statusBar}>
-        <Text style={styles.statusText}>{status}</Text>
-      </View>
+      {uiVisible && (
+        <View style={styles.statusBar}>
+          <Text style={styles.statusText}>{status}</Text>
+        </View>
+      )}
 
       {capturedPhoto ? (
         <Image source={{ uri: capturedPhoto }} style={styles.flex} resizeMode="cover" />
@@ -231,43 +246,51 @@ export default function CameraScreen() {
 
       <Pressable onPress={handleTap} style={StyleSheet.absoluteFill} />
 
-      <View style={{ position: "absolute", bottom: 30, width: "100%", alignItems: "center" }}>
-        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 10 }}>
-          <Pressable
-            style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
-            onPress={() => saveColor(selectedColor)}
-            disabled={!selectedColor}
-          >
-            <Text style={styles.controlEmoji}>💾</Text>
-          </Pressable>
-          <Pressable style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]} onPress={() => (navigation as any).navigate("ColorDetail", { color: selectedColor })} disabled={!selectedColor}>
-            <Text style={styles.controlEmoji}>🎨</Text>
-          </Pressable>
-        </View>
+      {uiVisible && (
+        <View style={{ position: "absolute", bottom: 30, width: "100%", alignItems: "center" }}>
+          <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 10 }}>
+            <Pressable
+              style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
+              onPress={() => saveColor(selectedColor)}
+              disabled={!selectedColor}
+            >
+              <Text style={styles.controlEmoji}>💾</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.controlButton, !selectedColor && { opacity: 0.5 }]}
+              onPress={() =>
+                (navigation as any).navigate("ColorDetail", { color: selectedColor })
+              }
+              disabled={!selectedColor}
+            >
+              <Text style={styles.controlEmoji}>🎨</Text>
+            </Pressable>
+          </View>
 
-        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-          {capturedPhoto ? (
-            <>
-              <Pressable style={styles.controlButton} onPress={discardPhoto}>
-                <Text style={styles.controlEmoji}>❌</Text>
-              </Pressable>
-              <Pressable style={styles.controlButton} onPress={savePhoto}>
-                <Text style={styles.controlEmoji}>💾</Text>
-              </Pressable>
-            </>
-          ) : (
-            <>
-              <Pressable style={styles.controlButton} onPress={pickFromGallery}>
-                <Text style={styles.controlEmoji}>🖼️</Text>
-              </Pressable>
+          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+            {capturedPhoto ? (
+              <>
+                <Pressable style={styles.controlButton} onPress={discardPhoto}>
+                  <Text style={styles.controlEmoji}>❌</Text>
+                </Pressable>
+                <Pressable style={styles.controlButton} onPress={savePhoto}>
+                  <Text style={styles.controlEmoji}>💾</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable style={styles.controlButton} onPress={pickFromGallery}>
+                  <Text style={styles.controlEmoji}>🖼️</Text>
+                </Pressable>
 
-              <Pressable style={localStyles.cameraButton} onPress={takePhoto}>
-                <View style={localStyles.innerCircle} />
-              </Pressable>
-            </>
-          )}
+                <Pressable style={localStyles.cameraButton} onPress={takePhoto}>
+                  <View style={localStyles.innerCircle} />
+                </Pressable>
+              </>
+            )}
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
