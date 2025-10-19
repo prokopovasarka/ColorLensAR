@@ -25,7 +25,6 @@ import PixelColor from "react-native-pixel-color";
 import useColorData from "./ColorData";
 import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 import { launchImageLibrary } from "react-native-image-picker";
-import { PERMISSIONS, RESULTS, request, check } from "react-native-permissions";
 
 import styles from "../styles/CameraStyles";
 
