@@ -8,6 +8,7 @@ import {
   findNodeHandle,
   Image,
   Alert,
+  ImageBackground,
 } from "react-native";
 import {
   ViroARScene,
@@ -34,7 +35,6 @@ const SceneAR: React.FC<any> = (props) => {
   const [materialName, setMaterialName] = useState("sphereColor");
   const [placedName, setPlacedName] = useState<string>("");
   const [placedHEX, setPlacedHEX] = useState<string>("");
-  const [placedHSL, setPlacedHSL] = useState<string>("");
   const [trackingOK, setTrackingOK] = useState(false);
 
   const reportStatus = props.sceneNavigator?.viroAppProps?.reportStatus ?? (() => { });
@@ -69,7 +69,6 @@ const SceneAR: React.FC<any> = (props) => {
           setPlacedPos(hit.transform.position as [number, number, number]);
           setPlacedHEX(color);
           setPlacedName(colorData.colorName);
-          setPlacedHSL(colorData.hslString);
           props.sceneNavigator?.viroAppProps?.setSelectedColor?.(color);
           reportStatus("Placed");
           return true;
@@ -89,7 +88,6 @@ const SceneAR: React.FC<any> = (props) => {
     setTimeout(() => {
       setMaterialName(newName);
       setPlacedName(colorData.colorName);
-      setPlacedHSL(colorData.hslString);
     }, 50);
   }, [placedHEX]);
 
@@ -137,6 +135,7 @@ export default function CameraScreen() {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [uiVisible, setUiVisible] = useState(true);
+  const colorData = useColorData(selectedColor || "#ffffff");
 
   const navigation = useNavigation();
   const placeAtPointRef = useRef<any>(null);
@@ -146,12 +145,15 @@ export default function CameraScreen() {
     const px = PixelRatio.get();
     const x = Math.round(e.nativeEvent.locationX * px);
     const y = Math.round(e.nativeEvent.locationY * px);
+
     try {
       const tag = findNodeHandle(viewRef.current);
       if (!tag) throw new Error("View ref not found");
       const uri = capturedPhoto || (await captureRef(tag, { format: "png", quality: 1 }));
       const color = await PixelColor.getHex(uri, { x, y });
       await placeAtPointRef.current?.(x, y, color);
+
+      setSelectedColor(color);
     } catch (err) {
       console.warn("Pixel read error:", err);
       setStatus("Pixel read failed");
@@ -169,6 +171,7 @@ export default function CameraScreen() {
 
       setCapturedPhoto(uri);
       setStatus("Photo captured");
+      setSelectedColor("");
     } catch {
       Alert.alert("Error", "Failed to capture photo");
     } finally {
@@ -229,7 +232,23 @@ export default function CameraScreen() {
       )}
 
       {capturedPhoto ? (
-        <Image source={{ uri: capturedPhoto }} style={styles.flex} resizeMode="cover" />
+        <View style={styles.flex}>
+          <Image source={{ uri: capturedPhoto }} style={styles.flex} resizeMode="cover" />
+
+          {selectedColor ? (
+            <View style={styles.staticView}>
+              <View style={[ styles.staticCircle, {backgroundColor: selectedColor} ]}/>
+
+              <ImageBackground
+                source={require("../assets/infoBox.png")}
+                style={styles.staticBox}
+              >
+                <Text style={styles.staticName}>{colorData.colorName}</Text>
+                <Text style={styles.staticHEX}>HEX: {selectedColor}</Text>
+              </ImageBackground>
+            </View>
+          ) : null}
+        </View>
       ) : (
         <ViroARSceneNavigator
           style={styles.flex}
@@ -266,7 +285,7 @@ export default function CameraScreen() {
             </Pressable>
           </View>
 
-          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", position: "relative" }}>
             {capturedPhoto ? (
               <>
                 <Pressable style={styles.controlButton} onPress={discardPhoto}>
@@ -278,12 +297,12 @@ export default function CameraScreen() {
               </>
             ) : (
               <>
-                <Pressable style={styles.controlButton} onPress={pickFromGallery}>
+                <Pressable style={styles.saveButton} onPress={pickFromGallery}>
                   <Text style={styles.controlEmoji}>🖼️</Text>
                 </Pressable>
 
-                <Pressable style={localStyles.cameraButton} onPress={takePhoto}>
-                  <View style={localStyles.innerCircle} />
+                <Pressable style={styles.cameraButton} onPress={takePhoto}>
+                  <View style={styles.innerCircle} />
                 </Pressable>
               </>
             )}
@@ -293,23 +312,3 @@ export default function CameraScreen() {
     </View>
   );
 }
-
-
-const localStyles = StyleSheet.create({
-  cameraButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 4,
-    borderColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 20,
-  },
-  innerCircle: {
-    width: 55,
-    height: 55,
-    borderRadius: 28,
-    backgroundColor: "#fff",
-  },
-});
