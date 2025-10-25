@@ -38,14 +38,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  saveButton: {
+  galleryButton: {
     marginHorizontal: 10,
     position: "absolute",
     left: 30,
   },
+  unselectButton: {
+    marginHorizontal: 10,
+    position: "absolute",
+    right: 30,
+  },
   controlEmoji: {
-    fontSize: 24,
+    fontSize: 20,
     color: "#fff",
+    fontWeight: "600",
   },
   topControls: {
     position: "absolute",

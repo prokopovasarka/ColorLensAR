@@ -26,6 +26,7 @@ import PixelColor from "react-native-pixel-color";
 import useColorData from "./ColorData";
 import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 import { launchImageLibrary } from "react-native-image-picker";
+import { FAB } from 'react-native-paper';
 
 import styles from "../styles/CameraStyles";
 
@@ -53,6 +54,13 @@ const SceneAR: React.FC<any> = (props) => {
 
   useEffect(() => {
     registerPlaceAtPoint(async (x: number, y: number, color: string) => {
+      if (x === null && y === null && color === null) {
+        setPlacedPos(null);
+        setPlacedHEX("");
+        setPlacedName("");
+        reportStatus("Color unselected");
+        return false;
+      }
       if (!trackingOK || !arRef.current) {
         reportStatus("Not ready");
         return false;
@@ -141,10 +149,13 @@ export default function CameraScreen() {
   const placeAtPointRef = useRef<any>(null);
   const viewRef = useRef<View>(null);
 
+  const [tapPos, setTapPos] = useState<{ x: number; y: number } | null>(null);
+
   const handleTap = async (e: any) => {
     const px = PixelRatio.get();
     const x = Math.round(e.nativeEvent.locationX * px);
     const y = Math.round(e.nativeEvent.locationY * px);
+    setTapPos({ x: e.nativeEvent.locationX, y: e.nativeEvent.locationY });
 
     try {
       const tag = findNodeHandle(viewRef.current);
@@ -154,6 +165,7 @@ export default function CameraScreen() {
       await placeAtPointRef.current?.(x, y, color);
 
       setSelectedColor(color);
+      setStatus("Color selected");
     } catch (err) {
       console.warn("Pixel read error:", err);
       setStatus("Pixel read failed");
@@ -201,6 +213,20 @@ export default function CameraScreen() {
       if (result.didCancel || !result.assets?.[0]?.uri) return;
       setCapturedPhoto(result.assets[0].uri);
       setStatus("Photo loaded");
+
+      setTimeout(async () => {
+        try {
+          setUiVisible(false);
+          const tag = findNodeHandle(viewRef.current);
+          if (!tag) return;
+          const uri = await captureRef(tag, { format: "png", quality: 1 });
+          setCapturedPhoto(uri);
+        } catch (e) {
+          console.warn("Snapshot after gallery load failed:", e);
+        } finally {
+          setUiVisible(true);
+        }
+      }, 500);
     } catch {
       Alert.alert("Error", "Failed to pick image");
     }
@@ -208,7 +234,14 @@ export default function CameraScreen() {
 
   const discardPhoto = () => {
     setCapturedPhoto(null);
+    setSelectedColor("");
     setStatus("Camera ready");
+  };
+
+  const unselectColor = () => {
+    setSelectedColor("");
+    setStatus("Color unselected");
+    placeAtPointRef.current?.(null, null, null);
   };
 
   const saveColor = async (color: string) => {
@@ -237,7 +270,7 @@ export default function CameraScreen() {
 
           {selectedColor ? (
             <View style={styles.staticView}>
-              <View style={[ styles.staticCircle, {backgroundColor: selectedColor} ]}/>
+              <View style={[styles.staticCircle, { backgroundColor: selectedColor }]} />
 
               <ImageBackground
                 source={require("../assets/infoBox.png")}
@@ -246,8 +279,25 @@ export default function CameraScreen() {
                 <Text style={styles.staticName}>{colorData.colorName}</Text>
                 <Text style={styles.staticHEX}>HEX: {selectedColor}</Text>
               </ImageBackground>
+
             </View>
           ) : null}
+          {tapPos && selectedColor && (
+            <View
+              style={{
+                position: "absolute",
+                left: tapPos.x - 6,
+                top: tapPos.y - 6,
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: selectedColor,
+                borderWidth: 2,
+                borderColor: "#fff",
+              }}
+              pointerEvents="none"
+            />
+          )}
         </View>
       ) : (
         <ViroARSceneNavigator
@@ -289,20 +339,26 @@ export default function CameraScreen() {
             {capturedPhoto ? (
               <>
                 <Pressable style={styles.controlButton} onPress={discardPhoto}>
-                  <Text style={styles.controlEmoji}>❌</Text>
+                  <Text style={styles.controlEmoji}>Discard photo</Text>
                 </Pressable>
                 <Pressable style={styles.controlButton} onPress={savePhoto}>
-                  <Text style={styles.controlEmoji}>💾</Text>
+                  <Text style={styles.controlEmoji}>Save photo</Text>
                 </Pressable>
               </>
             ) : (
               <>
-                <Pressable style={styles.saveButton} onPress={pickFromGallery}>
-                  <Text style={styles.controlEmoji}>🖼️</Text>
-                </Pressable>
+                <FAB
+                  icon="image"
+                  onPress={pickFromGallery}
+                  style={[styles.galleryButton, { backgroundColor: "#ffffffa6", margin: 16 }]}
+                />
 
                 <Pressable style={styles.cameraButton} onPress={takePhoto}>
                   <View style={styles.innerCircle} />
+                </Pressable>
+
+                <Pressable style={[styles.unselectButton, !selectedColor && { opacity: 0.5 }]} onPress={unselectColor} disabled={!selectedColor}>
+                  <Text style={styles.statusText}>Unselect</Text>
                 </Pressable>
               </>
             )}
