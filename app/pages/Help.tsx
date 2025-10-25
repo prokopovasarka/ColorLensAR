@@ -1,17 +1,24 @@
 import React from "react";
-import { ScrollView, View, Text, ImageBackground } from 'react-native';
+import { ScrollView, View, Text, ImageBackground, TouchableOpacity } from 'react-native';
 
 import { globalStyles } from '../styles/globalStyles';
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from '@react-navigation/native';
+import type { RootStackParamList } from "./App";
+
+type HelpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Help">;
 
 export default function Help() {
-    return(
+    const navigation = useNavigation<HelpScreenNavigationProp>();
+
+    return (
         <ScrollView contentContainerStyle={[globalStyles.container, { padding: 20, alignItems: 'center' }]}>
             <Text style={globalStyles.title} >Introduction</Text>
-            <Text style={globalStyles.quote}>Here, you can find guidance, tips, and instructions, 
-                ensuring that, whether you are a new or an experienced user, you can quickly find 
+            <Text style={globalStyles.quote}>Here, you can find guidance, tips, and instructions,
+                ensuring that, whether you are a new or an experienced user, you can quickly find
                 answers to your questions and resolve issues without external support.</Text>
-            <ImageBackground 
-                source={require('../assets/helpBox.png')} 
+            <ImageBackground
+                source={require('../assets/helpBox.png')}
                 style={{ width: 300, height: 200, marginVertical: 0 }}
             >
                 <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginTop: 35 }}>Let`s get started</Text>
@@ -19,7 +26,7 @@ export default function Help() {
             <Text style={globalStyles.helpTitle}>CAMERA{"\n"}</Text>
             <Text style={globalStyles.helpText}>Camera allows you to pick colors and show information about them in blue box.
                 You can see name of the color and hex code. for more detailed information - HSL, palettes, you can click "palette" emoji, that will
-                transfer you to Detail page. 
+                transfer you to Detail page.
                 {"\n"}
                 {"\n"}
                 To save picked color to library, click on "save" emoji next to palette image.
@@ -40,7 +47,7 @@ export default function Help() {
             </Text>
             <Text style={globalStyles.helpTitle}>CAPTURED PHOTO{"\n"} / PICKED FROM GALLERY{"\n"}</Text>
             <Text style={globalStyles.helpText}>You can tap anywhere on the picture, picked colour will be shown on the center of the picture on the same box
-                as in "CAMERA" part. 
+                as in "CAMERA" part.
                 {"\n"}
                 {"\n"}
                 To save or see details of picked colour, it works exactly the same.
@@ -98,7 +105,18 @@ export default function Help() {
                 {"\n"}
                 {"\n"}
             </Text>
-            <Text style={[globalStyles.helpTitle, {padding: 20, paddingBottom: 300}]}>GOOD LUCK!{"\n"}</Text>
+            <Text style={[globalStyles.helpTitle, { padding: 20, paddingBottom: 50 }]}>GOOD LUCK!{"\n"}</Text>
+            <TouchableOpacity
+                style={[globalStyles.button, { marginBottom: 200 }]}
+                onPress={() =>
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: "Home" as keyof RootStackParamList }],
+                    })
+                }
+            >
+                <Text style={globalStyles.buttonText}>GO TO MAIN MENU</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
