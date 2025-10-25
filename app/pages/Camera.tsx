@@ -200,7 +200,7 @@ export default function CameraScreen() {
       });
 
       Alert.alert("Saved!", "Photo saved to gallery.");
-      setCapturedPhoto(null);
+      setSelectedColor("");
     } catch (e) {
       console.error(e);
       Alert.alert("Error", "Failed to save photo");
@@ -277,7 +277,9 @@ export default function CameraScreen() {
                 source={require("../assets/infoBox.png")}
                 style={styles.staticBox}
               >
-                <Text style={styles.staticName}>{colorData.colorName}</Text>
+                <View style={{ width: 120 }}>
+                  <Text style={styles.staticName}>{colorData.colorName}</Text>
+                </View>
                 <Text style={styles.staticHEX}>HEX: {selectedColor}</Text>
               </ImageBackground>
 
