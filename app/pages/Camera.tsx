@@ -213,10 +213,11 @@ export default function CameraScreen() {
       if (result.didCancel || !result.assets?.[0]?.uri) return;
       setCapturedPhoto(result.assets[0].uri);
       setStatus("Photo loaded");
+      setSelectedColor("");
+      setUiVisible(false);
 
       setTimeout(async () => {
         try {
-          setUiVisible(false);
           const tag = findNodeHandle(viewRef.current);
           if (!tag) return;
           const uri = await captureRef(tag, { format: "png", quality: 1 });
