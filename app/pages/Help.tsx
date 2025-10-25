@@ -38,7 +38,7 @@ export default function Help() {
                 {"\n"}
                 {"\n"}
             </Text>
-            <Text style={globalStyles.helpTitle}>CAPTURED PHOTO / PICKED FROM GALLERY{"\n"}</Text>
+            <Text style={globalStyles.helpTitle}>CAPTURED PHOTO{"\n"} / PICKED FROM GALLERY{"\n"}</Text>
             <Text style={globalStyles.helpText}>You can tap anywhere on the picture, picked colour will be shown on the center of the picture on the same box
                 as in "CAMERA" part. 
                 {"\n"}
