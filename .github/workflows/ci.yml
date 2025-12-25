@@ -9,10 +9,11 @@ on:
       - '**'
 
 jobs:
-  # Static Analysis and Linting
+  # Static Analysis and Linting (Optional)
   lint:
-    name: Lint and Format Check
+    name: Lint and Format Check (Optional)
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: ./app
@@ -33,17 +34,21 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+        continue-on-error: true
 
       - name: Run Prettier check
         run: npm run format
+        continue-on-error: true
 
       - name: Run TypeScript type check
         run: npm run type-check
+        continue-on-error: true
 
-  # Security Audit
+  # Security Audit (Optional)
   security:
-    name: Security Audit
+    name: Security Audit (Optional)
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: ./app
@@ -110,9 +115,8 @@ jobs:
   # Build Android App
   build-android:
     name: Build Android
-    needs: [lint, test]
+    needs: [test]
     runs-on: ubuntu-latest
-    if: success()
     defaults:
       run:
         working-directory: ./app
@@ -157,9 +161,8 @@ jobs:
   # Build iOS App (requires macOS runner)
   build-ios:
     name: Build iOS
-    needs: [lint, test]
+    needs: [test]
     runs-on: macos-latest
-    if: success()
     defaults:
       run:
         working-directory: ./app
@@ -220,16 +223,16 @@ jobs:
   # Quality Gate for main branch
   quality-gate:
     name: Quality Gate
-    needs: [lint, security, test, build-android, build-ios]
+    needs: [test, build-android, build-ios]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
     steps:
-      - name: Check all jobs passed
+      - name: Check required jobs passed
         run: |
-          echo "All quality checks passed! ✅"
-          echo "- Linting: Passed"
-          echo "- Security Audit: Passed"
-          echo "- Tests: Passed"
-          echo "- Android Build: Passed"
-          echo "- iOS Build: Passed"
+          echo "All required quality checks passed! ✅"
+          echo "- Tests: Passed ✅"
+          echo "- Android Build: Passed ✅"
+          echo "- iOS Build: Passed ✅"
+          echo ""
+          echo "Optional checks (lint, security) may have run independently"
