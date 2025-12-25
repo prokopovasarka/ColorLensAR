@@ -4,6 +4,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import CameraScreen from './Camera';
 import LibraryScreen from './Library';
@@ -11,7 +12,7 @@ import Help from './Help';
 import ColorDetail from './ColorDetail';
 import { globalStyles } from '../styles/globalStyles';
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
   Camera: undefined;
   Library: undefined;
@@ -22,6 +23,17 @@ type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function HomeScreen({ navigation }: any) {
+  React.useEffect(() => {
+    const checkFirstLaunch = async () => {
+      const alreadyLaunched = await AsyncStorage.getItem('alreadyLaunched');
+      if (alreadyLaunched === null) {
+        await AsyncStorage.setItem('alreadyLaunched', 'true');
+        navigation.replace('Help'); 
+      }
+    };
+    checkFirstLaunch();
+  }, []);
+
   return (
     <View style={globalStyles.container}>
       <Text style={globalStyles.quote}>"The noblest pleasure is the joy of understanding colors."</Text>

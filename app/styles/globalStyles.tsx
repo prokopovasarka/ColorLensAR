@@ -9,7 +9,7 @@ export const globalStyles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#1e1e2ddd',
@@ -31,7 +31,7 @@ export const globalStyles = StyleSheet.create({
   },
   button: {
     margin: 10,
-    paddingVertical: 30,
+    paddingVertical: 20,
     borderRadius: 20,  
     width: width*0.8,
     backgroundColor: '#1e1e2ddd',
@@ -47,6 +47,17 @@ export const globalStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 30,
     fontWeight: '700',
+    letterSpacing: 1,
+  },
+  helpTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  helpText: {
+    color: '#fff',
+    fontSize: 13,
     letterSpacing: 1,
   }
 });

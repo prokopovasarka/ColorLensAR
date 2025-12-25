@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
 
 import { globalStyles } from '../styles/globalStyles';
+import styles from "../styles/LibraryStyles";
 
 import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -57,12 +58,13 @@ export default function LibraryScreen() {
       <Text style={globalStyles.title}>Saved Colors</Text>
 
       {colors.length ? (
-        <ScrollView contentContainerStyle={styles.grid}>
+        <ScrollView contentContainerStyle={styles.grid} testID="color-grid">
           {colors.map((c, i) => {
             const isSelected = selected.has(c);
             return (
               <Pressable
                 key={i}
+                testID={`color-box-${i}`}
                 style={[
                   styles.colorBox,
                   { backgroundColor: c },
@@ -81,31 +83,3 @@ export default function LibraryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  colorBox: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#fff",
-    margin: 10,
-  },
-  noColor: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  grid: { 
-    flexDirection: "row", 
-    flexWrap: "wrap", 
-    justifyContent: "flex-start", 
-  },
-  selectedBox: {
-    borderColor: "#ff0",
-    borderWidth: 3,
-  },
-  selectedMode: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 10,
-  },
-});
