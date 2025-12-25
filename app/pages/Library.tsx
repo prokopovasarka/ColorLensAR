@@ -58,12 +58,13 @@ export default function LibraryScreen() {
       <Text style={globalStyles.title}>Saved Colors</Text>
 
       {colors.length ? (
-        <ScrollView contentContainerStyle={styles.grid}>
+        <ScrollView contentContainerStyle={styles.grid} testID="color-grid">
           {colors.map((c, i) => {
             const isSelected = selected.has(c);
             return (
               <Pressable
                 key={i}
+                testID={`color-box-${i}`}
                 style={[
                   styles.colorBox,
                   { backgroundColor: c },

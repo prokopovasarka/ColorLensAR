@@ -42,3 +42,17 @@ yarn-error.*
 .expo
 dist/
 web-build/
+
+# ESLint and Prettier cache
+.eslintcache
+.prettierignore
+
+# Testing
+coverage/
+*.lcov
+
+# Build artifacts
+build/
+*.apk
+*.ipa
+*.aab
