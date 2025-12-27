@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
+import { View, Text, Button, ScrollView } from "react-native";
 
 import { globalStyles } from '../styles/globalStyles';
 import styles from "../styles/LibraryStyles";
