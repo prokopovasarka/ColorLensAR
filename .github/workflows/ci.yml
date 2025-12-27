@@ -106,7 +106,7 @@ jobs:
         continue-on-error: true
 
       - name: Archive coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: app/coverage/
@@ -156,7 +156,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Android APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: android-apk
           path: app/android/app/build/outputs/apk/release/*.apk
@@ -214,7 +214,7 @@ jobs:
             CODE_SIGN_ENTITLEMENTS=""
 
       - name: Upload iOS build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ios-build-artifacts
           path: app/ios/build/App.xcarchive
