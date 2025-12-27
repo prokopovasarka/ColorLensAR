@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Image, Text, ImageBackground, TouchableOpacity } from 'react-native';
+import { ScrollView, Image, Text, TouchableOpacity } from 'react-native';
 
 import { globalStyles } from '../styles/globalStyles';
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
