@@ -27,7 +27,7 @@ export default function useColorData(color: string) {
     const hexCode = color.toUpperCase();
 
     // HSL
-    const hexToHslObj = (hex: string) => {
+    const hexToHsl = (hex: string) => {
     const { r, g, b } = hexToRgb(hex);
     const rNorm = r/255;
     const gNorm = g/255;
@@ -54,7 +54,7 @@ export default function useColorData(color: string) {
     };
   };
 
-  const hslObj = hexToHslObj(color);
+  const hslObj = hexToHsl(color);
   const hslString = `Hue: ${hslObj.h}°, Saturation: ${hslObj.s}%, Lightness: ${hslObj.l}%`;
 
     // CMYK
