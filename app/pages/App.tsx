@@ -22,6 +22,7 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+/** Handles main navigation menu in the app */
 function HomeScreen({ navigation }: any) {
   React.useEffect(() => {
     const checkFirstLaunch = async () => {

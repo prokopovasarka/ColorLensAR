@@ -8,6 +8,7 @@ import type { RootStackParamList } from "./App";
 
 type HelpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Help">;
 
+/** Displays help info */
 export default function Help() {
     const navigation = useNavigation<HelpScreenNavigationProp>();
 

@@ -30,6 +30,7 @@ import { FAB } from 'react-native-paper';
 
 import styles from "../styles/CameraStyles";
 
+/** Placing objects in AR, creating materials and tracking position */
 const SceneAR: React.FC<any> = (props) => {
   const arRef = useRef<any>(null);
   const [placedPos, setPlacedPos] = useState<[number, number, number] | null>(null);
@@ -138,6 +139,7 @@ const SceneAR: React.FC<any> = (props) => {
   );
 };
 
+/** Handles camera screen with logic for detecting colours from picture **/
 export default function CameraScreen() {
   const [status, setStatus] = useState("Initializing…");
   const [selectedColor, setSelectedColor] = useState<string>("");

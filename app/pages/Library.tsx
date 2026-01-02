@@ -8,6 +8,7 @@ import styles from "../styles/LibraryStyles";
 import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+/** Library Screen of saved colors, picking and deleting them */
 export default function LibraryScreen() {
   const [colors, setColors] = useState<string[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());

@@ -3,6 +3,7 @@ import colorNamer from "color-namer";
 
 const OFFSET = 20;
 
+/** Handling color data and conversion of color systems with palettes */
 export default function useColorData(color: string) {
   const data = useMemo(() => {
     const hexToRgb = (hex: string) => ({

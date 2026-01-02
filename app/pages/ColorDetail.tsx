@@ -4,6 +4,7 @@ import { View, Text} from "react-native";
 import useColorData from "./ColorData";
 import styles from "../styles/DetailStyles";
 
+/** Handles page with Color Detail, displaying Color Data */
 export default function ColorDetail({ route }: any) {
   const { color } = route.params;
   const data = useColorData(color);
